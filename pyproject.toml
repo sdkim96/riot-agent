@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "riot-agent"
+version = "0.1.0"
+description = ""
+authors = ["sdkim96 <seong960603@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+langchain = "^0.3.5"
+langchain-openai = "^0.2.4"
+langchain-anthropic = "^0.2.3"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
