@@ -21,7 +21,7 @@ class Intents(enum.Enum):
         3, 
         "Retrieve comprehensive data about a specific match, including participant details, match timeline, and outcome, for a full match summary."
     )
-    GET_RANKED = (
+    GET_RANKING = (
         4, 
         "Access the current ranked standings, statistics, and achievements for the user or other players in competitive play."
     )
@@ -33,6 +33,10 @@ class Intents(enum.Enum):
     def __init__(self, code, description):
         self.code = code
         self.description = description
+
+    @classmethod
+    def get_all_intents(cls):
+        return [(intent.code, intent.description) for intent in cls]
 
 class Champions(enum.Enum):
     MASTER_YI = "master_yi"

@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 from .skills import RiotAPIScrapper, AnalysisManager
 from .utils import QueryWrapper
-from .utils.enum import (GameModes, LLM)
+from .utils.knowledge import (GameModes, LLM)
 from .llm import LLMWrapper
 from .vectorstore import VectorStore
 
@@ -49,7 +49,7 @@ class RiotAgent:
 
 async def main():
     riot = RiotAgent(
-        query="I want to play a game",
+        query="상대 바텀 조합이 알리 아펠인데, 템 뭐부터 사야해? 난 이즈야",
         llm=LLM.OPENAI.value,
         game_mode=GameModes.ARAM.value
     )

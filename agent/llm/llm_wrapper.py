@@ -1,3 +1,4 @@
+from typing import Any
 import os
 
 from langchain_core.embeddings import Embeddings
@@ -6,8 +7,11 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_openai.chat_models import ChatOpenAI
 from langchain_anthropic.chat_models import ChatAnthropic
 
+from langchain.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import BaseOutputParser
 
-from ..utils.enum import LLM
+
+from ..utils.knowledge import LLM
 
 class LLMWrapper:
 
@@ -15,7 +19,18 @@ class LLMWrapper:
         self.llm = llm
         self.api_key = self.get_api_key
         self.embedding = self.get_embedding
-        self.llm_moel = self.get_llm_model
+        self.llm_model = self.get_llm_model
+
+
+    async def chat_complete(
+        self,
+        parser: BaseOutputParser,
+        prompt: ChatPromptTemplate,
+        input_dict: dict
+    ) -> Any:
+        chain = prompt | self.llm_model | parser
+        return await chain.ainvoke(input_dict)
+
 
     @property
     def get_api_key(self) -> str:
@@ -41,3 +56,4 @@ class LLMWrapper:
         
         elif self.llm == LLM.ANTHROPIC.value:
             return ChatAnthropic()
+    
