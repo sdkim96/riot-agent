@@ -48,8 +48,12 @@ class RiotAgent:
 
 
 async def main():
+
+    query0 = "지금 픽창인데 우리팅 조합이 미드 신드라 탑 렝가고, 상대는 미드 빅토르 탑 갱플랭크야. 난 원딜인데 어떤 챔피언이 젤 좋아?"
+    query1 = "페이커선수 전적궁금해. 무슨 챔피언을 젤 많이하지?"
+
     riot = RiotAgent(
-        query="상대 바텀 조합이 알리 아펠인데, 템 뭐부터 사야해? 난 이즈야",
+        query=query1,
         llm=LLM.OPENAI.value,
         game_mode=GameModes.ARAM.value
     )
