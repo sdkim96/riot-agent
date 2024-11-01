@@ -13,7 +13,7 @@ from langchain_core.output_parsers import BaseOutputParser
 
 from ..utils.knowledge import LLM
 
-class LLMWrapper:
+class LLMHandler:
 
     def __init__(self, llm: str) -> None:
         self.llm = llm

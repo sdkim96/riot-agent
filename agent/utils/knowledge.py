@@ -8,6 +8,14 @@ class GameModes(enum.Enum):
     RIFT = "summoners_rift"
     ARAM = "aram"
 
+class Regions(enum.Enum):
+    KOREA = "kr"
+    NORTH_AMERICA = "na"
+    EUROPE = "euw"
+    LATIN_AMERICA = "lan"
+    BRAZIL = "br"
+    JAPAN = "jp"
+
 class Intents(enum.Enum):
     GET_SUMMONER = (
         1, 

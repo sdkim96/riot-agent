@@ -31,3 +31,34 @@ class PromptTemplateService:
             input_variables=['query', 'intents'],
             partial_variables={'format_instructions': parser.get_format_instructions()}
         )
+        
+    @staticmethod
+    def generate_summoner_prompt(
+        parser
+    ) -> PromptTemplate:
+        return PromptTemplate(
+            template="""
+            Your task is to identify and extract the summoner name and tag from the user's question. 
+            These identifiers typically follow this format: `SummonerName#Tag`.
+
+            Carefully analyze the user query and, if available, the web search results to provide the correct summoner name and tag.
+
+            Example Format:
+            - Summoner Name: Hide on Bush
+            - Tag: KR1
+
+            User Query:
+            {query}
+
+            Web Search Results:
+            {maybe}
+
+            Known Players:
+            {known_players}
+
+            Format Instructions (strict format required):
+            {format_instructions}
+            """,
+            input_variables=['query'],
+            partial_variables={'format_instructions': parser.get_format_instructions()}
+        )

@@ -1,10 +1,15 @@
 from typing import Tuple
 
-from ..utils.knowledge import Intents
+from ..utils.knowledge import Intents, GameModes, Regions
 
 class QueryWrapper:
 
-    def __init__(self, query):
+    def __init__(
+        self, 
+        query: str, 
+        game_mode: str, 
+        region: str
+    ):
         """
         Args:
             query (str): The user query to be analyzed.
@@ -13,8 +18,13 @@ class QueryWrapper:
         """
 
         self.query: str = query
-        self.intents: Tuple[Intents.code, Intents.code] = None
-        self.goal = None
+        self.game_mode: str = game_mode
+        self.region: str = region
+
+        self.query_background_knowledge: str = None
+        
+        self.intents: Tuple[Intents.code, Intents.code] = (None, None)
+        self.summoner: str = None
 
         self.target_api = None
         
