@@ -21,7 +21,7 @@ class QueryWrapper:
         self.game_mode: str = game_mode
         self.region: str = region
 
-        self.query_background_knowledge: str = None
+        self.query_background_knowledge: str = ""
         
         self.intents: Tuple[Intents.code, Intents.code] = (None, None)
         self.summoner: str = None

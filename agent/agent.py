@@ -20,7 +20,7 @@ class RiotAgent:
         ) -> None:
         
         self.web_agent = WebAgentHandler()
-        self.riot_handler = RiotHandler()
+        self.riot_handler = RiotHandler(region=region)
         self.crawler_agent = CrawlingHandler()
         
         self.query = QueryWrapper(query, game_mode, region)
@@ -53,7 +53,7 @@ async def main():
     query2 = "캬하하가 트타로 자주가는 템트리?"
 
     riot = RiotAgent(
-        query=query2,
+        query=query1,
         llm=LLM.OPENAI.value,
         game_mode=GameModes.ARAM.value,
         region=Regions.KOREA.value

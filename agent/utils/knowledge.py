@@ -9,17 +9,18 @@ class GameModes(enum.Enum):
     ARAM = "aram"
 
 class Regions(enum.Enum):
-    KOREA = "kr"
-    NORTH_AMERICA = "na"
-    EUROPE = "euw"
-    LATIN_AMERICA = "lan"
-    BRAZIL = "br"
-    JAPAN = "jp"
+    KOREA = "KR"
+    NORTH_AMERICA = "NA"
+    EUROPE = "EUW"
+    LATIN_AMERICA = "LAN"
+    BRAZIL = "BR"
+    JAPAN = "JP"
 
 class Intents(enum.Enum):
     GET_SUMMONER = (
         1, 
-        "Retrieve detailed information about a specific summoner, including their current level, rank, and recent gameplay statistics."
+        """
+        Retrieve detailed information about a specific summoner or specific pro player, including their current level, rank, and recent gameplay statistics."""
     )
     GET_CHAMPION = (
         2, 

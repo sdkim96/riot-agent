@@ -1,5 +1,9 @@
-from langchain.output_parsers import PydanticOutputParser
-from langchain_core.embeddings import Embeddings
+from langchain.output_parsers import (
+    PydanticOutputParser, 
+    CommaSeparatedListOutputParser,
+    RetryOutputParser
+)
+from langchain_core.exceptions import OutputParserException
 
 from ..utils.query import QueryWrapper
 from ..utils.knowledge import Intents
@@ -17,26 +21,41 @@ class AnalysisManager:
 
 
     async def analyze_intent(self):
-        await self._find_keywords_background()
-        await self._get_intent()
+        keywords = await self._find_keywords()
+        await self._get_intent(keywords)
 
 
-    async def _find_keywords_background(self):
+    async def _find_keywords(self):
         print(f"🔍 Finding keywords from the query: {self.query.query}")
-        backgrounds = self.web_agent.search_background_knowledge_of_query(
-            web_query=self.query.query
+
+        parser = CommaSeparatedListOutputParser()
+        prompt = PromptTemplateService.generate_keywords_prompt(
+            parser=parser
         )
-        print(f"🎯 Keywords background knowledge found: {backgrounds}")
-        self.query.query_background_knowledge = backgrounds
+
+        keywords: list[str] = await self.llm.chat_complete(
+            prompt=prompt,
+            parser=parser,
+            input_dict = {
+                'query': self.query.query,
+                'intents': Intents.get_all_intents()
+            }
+        )
+        print(f"🎯 Keywords found: {keywords}")
+        return keywords
         
 
     async def _get_intent(
         self,
+        keywords: list[str]
     ):
         print(f"🔍 Getting intent from the query: {self.query.query}")
 
-        intents_list = Intents.get_all_intents()
         parser = PydanticOutputParser(pydantic_object=Intent)
+        # retry_parser = RetryOutputParser(
+        #     parser=parser
+        #     retry_chain=
+        # )
         prompt = PromptTemplateService.generate_intent_prompt(
             parser=parser
         )
@@ -46,7 +65,8 @@ class AnalysisManager:
             parser=parser,
             input_dict = {
                 'query': self.query.query,
-                'intents': intents_list
+                'intents': Intents.get_all_intents(),
+                'keywords': keywords
             }
         )
         
@@ -57,7 +77,7 @@ class AnalysisManager:
         self.query.intents = (this_intent.rank_1_code, this_intent.rank_2_code)
 
 
-    async def guess_summoner_name_from_query(self):
+    async def guess_summoner_name_from_query(self) -> Summoner:
         print(f"🔍 Getting summoner name from the query: {self.query.query}")
 
         parser = PydanticOutputParser(pydantic_object=Summoner)
@@ -89,9 +109,8 @@ class AnalysisManager:
                     'known_players': self.crawler_agent.crawl_pros(self.query.region),
                 }
             )
-        except Exception:
+        except OutputParserException:
             this_summoner = Summoner(name=None, tag=None)
-
 
         print("🎯 Summoner name analysis completed.")
         print(f"🎯 Name: {this_summoner.name}, Tag: {this_summoner.tag}")

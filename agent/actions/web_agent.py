@@ -17,13 +17,21 @@ class WebAgentHandler:
     def do_web_search(self, web_query: str):
         return self.tavily_client.search(web_query)
     
-    def search_background_knowledge_of_query(self, web_query: str):
+    def search_background_knowledge_of_query(
+            self, 
+            web_query: str,
+            limit: int = 2
+        ):
         query = f"""
-        Notice keywords of the given query, 
-        and search the keyword in the web.
+        search the keyword in the web.
+        You must Search on 'League of Legends' domain.
+        Because this is a query about League of Legends or Riot games.
 
-        - query: {web_query}
+        - keyword: {web_query}
         """
-
-        backgrounds = self._concat_results_to_string(self.tavily_client.search(query))
+        web_result = self.tavily_client.search(
+            query=query,
+            max_results=limit
+        )
+        backgrounds = self._concat_results_to_string(web_result)
         return backgrounds

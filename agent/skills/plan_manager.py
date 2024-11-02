@@ -6,6 +6,7 @@ class PlanManager:
     
     def __init__(self, agent):
         self.analysis_manager: AnalysisManager = agent.analysis_manager
+        self.riot_handler = agent.riot_handler
         self.query = agent.query
 
 
@@ -50,8 +51,22 @@ class PlanManager:
 
         if 1 in self.query.intents:
             print("📝 Intent 1 (Get Summoner)")
-            summoner = await self.analysis_manager.guess_summoner_name_from_query()
+            summoner_candidate = await self.analysis_manager.guess_summoner_name_from_query()
+            
+            try:
+                summoner = self.riot_handler.get_summoner(
+                    name=summoner_candidate.name,
+                    tagline=summoner_candidate.tag
+                )
 
+                match_history = self.riot_handler.get_summnoner_match_history(
+                    summoner
+                )
+                champion_masteries = self.riot_handler.get_summoner_most_played_champion(
+                    summoner
+                )
+            except:
+                print("🚨 Summoner not found.")
 
         if 2 in self.query.intents:
             print("📝 Intent 2 (Get Champion)")

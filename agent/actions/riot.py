@@ -30,6 +30,19 @@ class RiotHandler:
         return target_account.summoner
     
 
+    def get_summnoner_match_history(
+        self,
+        summoner: cass.Summoner
+    ):
+        return summoner.match_history
+    
+    def get_summoner_most_played_champion(
+        self,
+        summoner: cass.Summoner
+    ):
+        return summoner.champion_masteries
+    
+
 if __name__ == "__main__":
     riot = RiotHandler(region="KR")
     faker = riot.get_summoner("BuLLDoG", "kr1")
