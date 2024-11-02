@@ -20,7 +20,10 @@ class Intents(enum.Enum):
     GET_SUMMONER = (
         1, 
         """
-        Retrieve detailed information about a specific summoner or specific pro player, including their current level, rank, and recent gameplay statistics."""
+        Retrieve detailed information about a specific summoner or specific pro player, including their current level, rank, and recent gameplay statistics.
+        Summoner names are usually in the format `SummonerName#Tag`, where `SummonerName` is the player's name and `Tag` identifies their region or account.
+        Pro players are well-known professional gamers who compete in high-level tournaments and leagues.
+        """
     )
     GET_CHAMPION = (
         2, 

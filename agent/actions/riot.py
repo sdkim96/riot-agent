@@ -1,11 +1,10 @@
 import os
-
+import asyncio
 import cassiopeia as cass
 
 class RiotHandler:
 
     def __init__(self, region: str = "NA"):
-        
         if os.getenv("RIOT_API_KEY") is None:
             raise ValueError("RIOT_API_KEY is not set.")
         
@@ -14,38 +13,43 @@ class RiotHandler:
         
         self.region = region
 
-
-    def get_summoner(
+    async def get_summoner(
         self,
         name: str,
         tagline: str,
-    ):
-        
-        target_account = cass.get_account(
-            name = name,
-            tagline = tagline.capitalize(),
-            region = self.region
+    ) -> cass.Summoner:
+        target_account = await asyncio.to_thread(
+            cass.get_account,
+            name=name,
+            tagline=tagline.capitalize(),
+            region=self.region
         )
-
         return target_account.summoner
-    
 
-    def get_summnoner_match_history(
+    async def get_summoner_match_history(
         self,
         summoner: cass.Summoner
     ):
-        return summoner.match_history
-    
-    def get_summoner_most_played_champion(
+        return await asyncio.to_thread(lambda: summoner.match_history)
+
+    async def get_summoner_most_played_champion(
         self,
         summoner: cass.Summoner
     ):
-        return summoner.champion_masteries
-    
+        return await asyncio.to_thread(lambda: summoner.champion_masteries)
 
 if __name__ == "__main__":
-    riot = RiotHandler(region="KR")
-    faker = riot.get_summoner("BuLLDoG", "kr1")
+    async def main():
+        riot = RiotHandler(region="KR")
+        faker = await riot.get_summoner("Hide on Bush", "kr1")
+        
+        level = faker.level
+        most_played_champions = await riot.get_summoner_most_played_champion(faker)
+        print(most_played_champions)
 
-    level=faker.level
-    print(level)
+        match_history = await riot.get_summoner_match_history(faker)
+        print(match_history)
+
+        print(level)
+
+    asyncio.run(main())

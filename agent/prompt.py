@@ -1,6 +1,8 @@
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.prompts import PromptTemplate
 
+from .utils.knowledge import GameModes
+
 class PromptTemplateService:
     
     @staticmethod
@@ -10,11 +12,14 @@ class PromptTemplateService:
                 Identify the user's intent from the given query using the provided keywords.
                 
                 Instructions:
-                - Provide up to two intents, ranked by relevance.
+                - Provide up to three intents, ranked by relevance.
                 - The primary intent should be filled as `rank_1_code` and `rank_1_description`.
                 - If a second intent is relevant, add it as `rank_2_code` and `rank_2_description`.
-                - If only one intent is relevant, leave `rank_2_code` and `rank_2_description` empty.
-
+                - if a third intent is relevant, add it as `rank_3_code` and `rank_3_description`.
+                
+                - If only one intent is relevant, leave `rank_2_code` and `rank_2_description` and `rank_3_code` and `rank_3_description` None.
+                - If two intents are relevant, leave `rank_3_code` and `rank_3_description` None.
+                
                 Available Intents:
                 {intents}
 
@@ -75,14 +80,14 @@ class PromptTemplateService:
     ):
         return PromptTemplate(
             template="""
-            Your task is to identify **up to 2 essential keywords** from the user's question. 
+            Your task is to identify **up to 3 essential keywords** from the user's question. 
             These keywords should help to clearly understand the user's intent and context.
 
             **Guidelines**:
             1. Only select nouns as keywords.
-            2. Limit the keywords to a maximum of 2.
+            2. Limit the keywords to a maximum of 3.
             3. Ensure the keywords capture the main subject and focus of the question.
-
+            
             **User Query**:
             {query}
 
@@ -99,3 +104,25 @@ class PromptTemplateService:
             input_variables=['query', 'intents'],
             partial_variables={'format_instructions': parser.get_format_instructions()}
         )
+    
+    @staticmethod
+    def generate_domain_knowlege_from_keyword():
+        return PromptTemplate(
+            template="""
+            Your task is to provide information based on the extracted keywords from the user's question in main domain.
+            The main domain is famous game, 'League of Legends'
+            The information should be relevant to the keywords.
+
+            **Guidelines**:
+            1. Provide detailed information about the keywords.
+            2. Include any relevant statistics, facts, or explanations.
+            3. Ensure the information is accurate and up-to-date.
+            4. If you are unsure about the information, Return 'No information found.'
+
+            **Keywords**:
+            {keywords}
+
+            """,
+            input_variables=['keywords'],
+        )
+    

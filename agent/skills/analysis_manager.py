@@ -1,8 +1,8 @@
 from langchain.output_parsers import (
     PydanticOutputParser, 
     CommaSeparatedListOutputParser,
-    RetryOutputParser
 )
+from langchain_core.output_parsers import StrOutputParser
 from langchain_core.exceptions import OutputParserException
 
 from ..utils.query import QueryWrapper
@@ -21,8 +21,16 @@ class AnalysisManager:
 
 
     async def analyze_intent(self):
+        """
+        Analyze the intent of the user query.
+        
+        Steps:
+            1. Find keywords from the query.
+            2. Get the intent from the query.
+        """
         keywords = await self._find_keywords()
-        await self._get_intent(keywords)
+        keyword_and_description = await self._find_domain_knowledge(keywords)
+        await self._get_intent(keyword_and_description)
 
 
     async def _find_keywords(self):
@@ -43,19 +51,40 @@ class AnalysisManager:
         )
         print(f"🎯 Keywords found: {keywords}")
         return keywords
+    
+
+    async def _find_domain_knowledge(self, keywords):
+        print(f"🔍 Finding domain knowledge from the keywords: {keywords}")
+
+        parser = StrOutputParser()
+        prompt = PromptTemplateService.generate_domain_knowlege_from_keyword()
+        returning = []
+
+        for k in keywords:
+            information: str = await self.llm.chat_complete(
+                prompt=prompt,
+                parser=parser,
+                input_dict = {
+                    'keywords': k
+                }
+            )
+
+            print(f"🎯 Keywords {k} means: {information[:15]}...")
+            returning.append({
+                k: information
+            })
+        
+        return returning
         
 
     async def _get_intent(
         self,
-        keywords: list[str]
+        keywords: list[dict[str, str]]
     ):
         print(f"🔍 Getting intent from the query: {self.query.query}")
 
         parser = PydanticOutputParser(pydantic_object=Intent)
-        # retry_parser = RetryOutputParser(
-        #     parser=parser
-        #     retry_chain=
-        # )
+
         prompt = PromptTemplateService.generate_intent_prompt(
             parser=parser
         )
@@ -73,8 +102,9 @@ class AnalysisManager:
         print("🎯 Intent analysis completed.")
         print(f"🎯 Rank1 >>> Intent: {this_intent.rank_1_code}, Description: {this_intent.rank_1_description}")
         print(f"🎯 Rank2 >>> Intent: {this_intent.rank_2_code if this_intent.rank_2_code else None}, Description: {this_intent.rank_2_description if this_intent.rank_2_code else None}")
+        print(f"🎯 Rank3 >>> Intent: {this_intent.rank_3_code if this_intent.rank_3_code else None}, Description: {this_intent.rank_3_description if this_intent.rank_3_code else None}")
         
-        self.query.intents = (this_intent.rank_1_code, this_intent.rank_2_code)
+        self.query.intents = (this_intent.rank_1_code, this_intent.rank_2_code, this_intent.rank_3_code)
 
 
     async def guess_summoner_name_from_query(self) -> Summoner:
