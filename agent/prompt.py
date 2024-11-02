@@ -12,13 +12,8 @@ class PromptTemplateService:
                 Identify the user's intent from the given query using the provided keywords.
                 
                 Instructions:
-                - Provide up to three intents, ranked by relevance.
-                - The primary intent should be filled as `rank_1_code` and `rank_1_description`.
-                - If a second intent is relevant, add it as `rank_2_code` and `rank_2_description`.
-                - if a third intent is relevant, add it as `rank_3_code` and `rank_3_description`.
-                
-                - If only one intent is relevant, leave `rank_2_code` and `rank_2_description` and `rank_3_code` and `rank_3_description` None.
-                - If two intents are relevant, leave `rank_3_code` and `rank_3_description` None.
+                - If only one intent is relevant, leave `rank_2_code` and `rank_3_code` None.
+                - If two intents are relevant, leave `rank_3_code` None.
                 
                 Available Intents:
                 {intents}

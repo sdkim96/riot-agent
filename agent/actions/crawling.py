@@ -1,35 +1,32 @@
 import requests
 from bs4 import BeautifulSoup
 
-from ..utils import QueryWrapper
-
-
 class CrawlingHandler:
+
+    # Private class variable for headers
+    __headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+    }
 
     def __init__(self):
         self.pros_data = None
             
     def crawl_pros(self, region: str):
-
         if self.pros_data is not None:
             return self.pros_data
         
-        self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-        }
         processed_data = []
         added_summoners = set()
 
         try:
             base_url = f"https://www.op.gg/spectate/list/pro-gamer?region={region}"
-            response = requests.get(base_url, headers=self.headers)
+            response = requests.get(base_url, headers=self.__headers)
             response.raise_for_status()  # HTTP 에러 발생 시 예외 처리
             
             soup = BeautifulSoup(response.text, "html.parser")
             summoner_name_divs = soup.find_all("div", class_="summoner-info")
             
             for div in summoner_name_divs:
-                
                 summoner_name_span = div.find_all('span')[0]
                 summoner_name = summoner_name_span.get_text(strip=True) if summoner_name_span else None
                 
@@ -57,9 +54,41 @@ class CrawlingHandler:
             processed_data = None
 
         return processed_data
+
+
+    def crawl_champions_data(self, region: str = None, game_mode: str = None) -> dict:
+        """Crawl champions data from the target URL."""
+        target_url = "https://www.fow.lol/stats"
+        response = requests.get(target_url, headers=self.__headers)
+        
+        if response.status_code != 200:
+            print("Failed to retrieve data")
+            return {}
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        
+        # Find the table with id "sort_stats"
+        table = soup.find("table", {"id": "sort_stats"})
+        
+        if not table:
+            print("Table not found")
+            return {}
+        
+        # Extract headers
+        headers = [th.get_text(strip=True) for th in table.find("thead").find_all("th")]
+        
+        # Extract rows
+        data = []
+        for row in table.find("tbody").find_all("tr"):
+            columns = [td.get_text(strip=True) for td in row.find_all("td")]
+            if columns:
+                data.append(dict(zip(headers, columns)))
+        
+        return data
+
     
 
 if __name__ == "__main__":
     crawler = CrawlingHandler()
-    summoner_name_html = crawler.crawl_pros("kr")
+    summoner_name_html = crawler.crawl_champions_data()
     print(summoner_name_html)

@@ -15,3 +15,12 @@ Agent for League of Legends.
 - Fetch recent match history and details
 - Analyze ranked performance and leaderboard standings
 - Gather in-game item details for enhanced strategies
+
+### ⚙️ How it Works?
+
+1. Get query's intent.
+2. Plan main tasks depending on it's intent.
+3. In main tasks, **dynimacally plan sub tasks.**
+
+### Dynamical Planning
+

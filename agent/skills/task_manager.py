@@ -78,6 +78,13 @@ class TaskManager:
     async def execute(self, tasks):
         """Do Jobs concurrently"""
         return await asyncio.gather(*tasks)
+    
+
+    async def plan_sub_tasks(self, main_task_id):
+        """
+        Plan sub tasks by using dynamic task planning
+        Read the docs from agent.actions.__init__.py for more information.
+        """
 
 
     async def _process_summoner(self):
@@ -95,14 +102,14 @@ class TaskManager:
 
 
     async def _get_champion(self):
-        pass
+        await self.plan_sub_tasks(2)
 
     async def _get_match(self):
-        pass
+        await self.plan_sub_tasks(3)
 
     async def _get_ranking(self):
-        pass
+        await self.plan_sub_tasks(4)
 
     async def _get_item(self):
-        pass
+        await self.plan_sub_tasks(5)
         

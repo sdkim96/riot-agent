@@ -8,7 +8,25 @@
             "name": "Python 디버거: 모듈",
             "type": "debugpy",
             "request": "launch",
-            "module": "agent.agent"
+            "module": "agent.agent",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"  // 프로젝트 루트 경로를 PYTHONPATH에 추가
+            }
+        },
+        {
+            "name": "Python: pytest 디버깅",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-s",
+                "tests"  // 테스트 폴더 경로
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"  // 프로젝트 루트를 PYTHONPATH에 추가
+            },
+            "justMyCode": false  // 필요 시 외부 라이브러리 코드도 디버그 가능
         }
     ]
 }

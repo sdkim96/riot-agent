@@ -55,8 +55,10 @@ async def main():
     query3 = "챔피언 티어 리스트"
     query4 = "엄준식제자#KR1 이 자주 하는 챔피언을 알려줘"
 
+    difficult_query = "원딜중 왕귀형 챔프를 추천해줘"
+
     riot = RiotAgent(
-        query=query4,
+        query=difficult_query,
         llm=LLM.OPENAI.value,
         game_mode=GameModes.ARAM.value,
         region=Regions.KOREA.value
