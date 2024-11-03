@@ -70,8 +70,13 @@ class RiotHandler:
     ############
 
 
-    async def get_all_champions(self) -> cass.Champions:
-        return await asyncio.to_thread(cass.get_champions, region=self.region)
+    async def get_all_champions(
+        self,
+        region: Optional[str] = None
+    ) -> cass.Champions:
+        if region is None:
+            region = self.region
+        return await asyncio.to_thread(cass.get_champions, region=region)
 
 
     async def get_champion_by_name(

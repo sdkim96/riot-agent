@@ -125,22 +125,27 @@ class AnalysisManager:
                 }
             )
         except OutputParserException:
-            #XXX : Not implemented yet.
+            
             print("⚠️ Could not parse the intent, Do similarity search.")
-            this_intent = Intent(
-                rank_1_code = '2',
-                rank_2_code = '3',
-                rank_3_code = '5'
-            )
-
-            assert True, "Not implemented yet."
-            response = await self.vectorstore.do_similarity_search(
+            this_intent = None
+            knowledges = await self.vectorstore.do_similarity_search(
                 query = self.query_wrapper.query,
-                compare_with = Intents.get_all_intents(),
-                kwargs={
-                    'keywords': keywords
+                filter={
+                    'domain': 'intents'
                 }
             )
+
+            
+            this_intent = Intent()
+
+            if knowledges:
+                knowledge_ids = [knowledge.metadata.get('id') for knowledge in knowledges[:3]]
+            
+                this_intent.rank_1_code = knowledge_ids[0]
+                this_intent.rank_2_code = knowledge_ids[1]
+                this_intent.rank_3_code = knowledge_ids[2]
+
+
         
         print("🎯 Intent analysis completed.")
         print(f"🎯 Rank1 >>> Intent: {this_intent.rank_1_code}")
@@ -190,7 +195,7 @@ class AnalysisManager:
                     }
                 )
 
-                summoners.extend(summoner_list)
+                summoners.append(summoner_list)
 
                 print("🎯 Summoner name analysis completed.")
                 for s in summoners:
@@ -202,7 +207,7 @@ class AnalysisManager:
         return summoners
     
 
-    async def guess_champion_from_query(self):
+    async def guess_champion_from_query(self) -> list[str] | None:
         print(f"🔍 Getting champion name from the query: {self.query_wrapper.query}")
 
         parser = CommaSeparatedListOutputParser()

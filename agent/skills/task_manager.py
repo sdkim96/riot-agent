@@ -80,23 +80,23 @@ class TaskManager:
 
         tasks = []
 
-        if '1' in self.query.intents:
+        if '1' in self.query_wrapper.intents:
             print("📝 Intent 1 (Get Summoner)")
             tasks.append(self._process_summoner())
 
-        if '2' in self.query.intents:
+        if '2' in self.query_wrapper.intents:
             print("📝 Intent 2 (Get Champion)")
             tasks.append(self._get_champion())
 
-        if '3' in self.query.intents:
+        if '3' in self.query_wrapper.intents:
             print("📝 Intent 3 (Get Match)")
             tasks.append(self._get_match())
 
-        if '4' in self.query.intents:
+        if '4' in self.query_wrapper.intents:
             print("📝 Intent 4 (Get Ranking)")
             tasks.append(self._get_ranking())
 
-        if '5' in self.query.intents:
+        if '5' in self.query_wrapper.intents:
             print("📝 Intent 5 (Get Item)")
             tasks.append(self._get_item())
 
@@ -116,12 +116,15 @@ class TaskManager:
             parser=parser
         )
 
+        print(self.query_wrapper.meanings)
+
+        #TODO : We have to insert the essential information for the sub tasks. like keyword and keywords' meaning
         sub_tasks_candidates: list[str] = await self.llm.chat_complete(
             prompt=prompt,
             parser=parser,
             input_dict = {
                 'query': self.query_wrapper.query,
-                # 'intents': self.query.intents, #TODO : We have to insert the essential information for the sub tasks.
+                'keywords_explainations': self.query_wrapper.meanings, #TODO: Check this is correct or not.
                 'sub_tasks': self.available_tasks
             }
         )
@@ -159,23 +162,33 @@ class TaskManager:
                 except:
                     self.query_wrapper.target_summoners.append(None)
                     print("🚨 Summoner not found.")
-
+        else:
+            print("🚨 Summoner not found.")
 
 
     async def _get_champion(self):
         
         converter = Converter()
+        assert self.query_wrapper.all_champions is None, "All champions must be None before this method."
 
         cass_dto_champions = await self.riot_handler.get_all_champions()        
-        self.query_wrapper.all_champions = await converter.convert(cass_dto=cass_dto_champions)
-        
+        cass_dto_english_champions = await self.riot_handler.get_all_champions(region='NA')
+
+        all_champions = await converter.convert(cass_dto=cass_dto_champions)
+        for each_champion in all_champions:
+            for each_english_champion in cass_dto_english_champions:
+                if each_champion.id == each_english_champion.id:
+                    each_champion.english_name = each_english_champion.name
+                    break 
+
+        self.query_wrapper.all_champions = all_champions
         champion_candidates = await self.analysis_manager.guess_champion_from_query()
         
         if champion_candidates:
             for champion in self.query_wrapper.all_champions:
                 for champion_candidate in champion_candidates:
 
-                    if champion_candidate in champion.name:
+                    if champion_candidate in (champion.name or champion.english_name):
                         self.query_wrapper.target_champions.append(champion)
                         break
         

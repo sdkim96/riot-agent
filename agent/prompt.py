@@ -140,13 +140,16 @@ class PromptTemplateService:
             **User Query**:
             {query}
 
+            **keyword explainations**:
+            {keywords_explainations}
+
             **Sub tasks**:
             {sub_tasks}
 
             **Format Instructions**:
             {format_instructions}
             """,
-            input_variables=['queyr', 'sub_tasks'],
+            input_variables=['queyr', 'sub_tasks', 'keywords_explainations'],
             partial_variables={'format_instructions': parser.get_format_instructions()}
         )
     
