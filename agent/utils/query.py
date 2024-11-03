@@ -1,8 +1,8 @@
 from typing import Tuple, Optional
 
 from ..utils.knowledge import Intents, GameModes, Regions
-from ..dto import Summoner, Champion
-from ..actions import RiotHandler
+from ..schemas import Summoner, Champion
+from ..externals import RiotHandler
 
 
 class QueryWrapper:
@@ -27,13 +27,15 @@ class QueryWrapper:
         self.riot_handler: RiotHandler = riot_handler
 
         self.keywords: list[str] = []
-        self.meanings: dict[str, str] = {}
+        self.meanings: list[dict[str, str]] = []
         
         self.intents: Tuple[Intents.code, Intents.code] = (None, None)
 
-        self.all_champions = None
+        
 
         ########## MAIN TASKS ##########
+        self.all_champions = None
+        self.target_lane: Optional[str] = None
         self.target_summoners: list[Optional[Summoner]] = []
         self.target_champions: list[Champion] = []
 

@@ -1,7 +1,7 @@
 import asyncio
 import random
 
-from ..dto.exceptions import TaskCantBeAdded
+from ..schemas.exceptions import TaskCantBeAdded
 
 ############
 # Summoner #
@@ -16,7 +16,7 @@ class TaskPool:
         """
         print(f"🔍 Finding the summoner that the user wants to compare.")
         try:
-            summoners = agent.query.target_summoners
+            summoners = agent.query_wrapper.target_summoners
             print(f"🎉 Found the summoners: {summoners}")
 
             if len(summoners) < 2:
@@ -30,7 +30,7 @@ class TaskPool:
                 summoners_detail = await agent.riot_handler.get_summoner(summoner)
                 summoners_details.append(summoners_detail)
 
-            agent.query.searched_knowledges["summoners"] = summoners_details
+            agent.query_wrapper.searched_knowledges["summoners"] = summoners_details
         except:
             raise TaskCantBeAdded("Summoners not found.")
 
@@ -50,7 +50,7 @@ class TaskPool:
             champions = await agent.riot_handler.get_op_champions()
             print(f"🎉 Found the OP champions: {champions}")
 
-            agent.query.searched_knowledges["op_champions"] = champions
+            agent.query_wrapper.searched_knowledges["op_champions"] = champions
         except:
             raise TaskCantBeAdded("OP Champions not found in this patch.")
         

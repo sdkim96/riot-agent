@@ -150,3 +150,34 @@ class PromptTemplateService:
             partial_variables={'format_instructions': parser.get_format_instructions()}
         )
     
+    def generate_champion_prompt(parser):
+        return PromptTemplate(
+            template="""
+            Your task is to identify the champion(s) mentioned in the user query, including culturally specific terms or nicknames commonly used to refer to champions.
+
+            Instructions:
+
+                • Extract the champion(s) referenced in the user query, including any culturally relevant nicknames or terms.
+                • Refer to the "All Champion Names" list provided below to recognize the official champion names.
+                • Utilize the "Hints" section, which contains background information about specific keywords in the query. This can help interpret the intent and provide context.
+
+            Example:
+                • Query: "케틀에 대해 알려줘"
+                • "케틀" is a common nickname for the champion Caitlyn, so Caitlyn should be extracted.
+
+            User Query:
+            {query}
+
+            Hints (background for each keyword):
+            {hints}
+            
+            All Champion Names (official names for reference):
+            {all_champions}
+
+            Format Instructions:
+            {format_instructions}
+            """,
+            input_variables=['query', 'hints', 'all_champions'],
+            partial_variables={'format_instructions': parser.get_format_instructions()}
+        )
+    

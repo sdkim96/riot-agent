@@ -1,11 +1,11 @@
 import pytest
 from agent.agent import RiotAgent
-from agent.actions.riot import RiotHandler
+from agent.externals.riot import RiotHandler
 
-@pytest.mark.asyncdio
-async def inititalize_agent():
-    riot_handler = RiotAgent()
-    assert riot_handler
+# @pytest.mark.asyncdio
+# async def inititalize_agent():
+#     riot_handler = RiotAgent()
+#     assert riot_handler
 
 # @pytest.mark.asyncio
 # async def test_get_this_patch_version():

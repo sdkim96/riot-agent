@@ -10,15 +10,14 @@ from langchain_core.exceptions import OutputParserException
 
 from ..utils.query import QueryWrapper
 from ..utils.knowledge import Intents
-from ..actions import LLMHandler, CrawlingHandler, WebAgentHandler
-from ..dto.commons import Intent
-from ..dto.summoner import Summoner
+from ..externals import LLMHandler, CrawlingHandler, WebAgentHandler
+from ..schemas import Intent, Summoner, Champion
 from ..vectorstore import VectorStore
 from ..prompt import PromptTemplateService
 
 class AnalysisManager:
     def __init__(self, agent):
-        self.query: QueryWrapper = agent.query
+        self.query_wrapper: QueryWrapper = agent.query_wrapper
         self.llm: LLMHandler = agent.llm
         self.vectorstore: VectorStore = agent.vectorstore
         self.web_agent: WebAgentHandler = agent.web_agent
@@ -35,7 +34,7 @@ class AnalysisManager:
             2. Get the intent from the query.
         """        
         if query is None:
-            target_query = self.query.query
+            target_query = self.query_wrapper.query
 
         await self._find_keywords_and_meaning(target_query=target_query)
         await self._get_intent()
@@ -48,7 +47,7 @@ class AnalysisManager:
         ) -> list[str]:
 
         if target_query is None:
-            target_query = self.query.query
+            target_query = self.query_wrapper.query
 
         print(f"🔍 Finding keywords from the query: {target_query}")
 
@@ -67,7 +66,7 @@ class AnalysisManager:
         )
         print(f"🎯 Keywords found: {keywords}")
 
-        self.query.keywords = keywords
+        self.query_wrapper.keywords = keywords
         keywords_information = await self._find_keyword_information(keywords)
 
         return keywords_information
@@ -76,7 +75,7 @@ class AnalysisManager:
     async def _find_keyword_information(self, keywords: Optional[list[str]]) -> list[dict[str, str]]:
         
         if keywords is None:
-            keywords = self.query.keywords
+            keywords = self.query_wrapper.keywords
 
         print(f"🔍 Finding domain knowledge from the keywords: {keywords}")
 
@@ -94,12 +93,12 @@ class AnalysisManager:
             )
 
             print(f"🎯 Keywords {k} means: {information[:30]}...")
-            self.query.meanings[k] = information
 
             keyword_information.append({
                 k: information
             })
-        
+
+        self.query_wrapper.meanings = keyword_information       
         return keyword_information
         
 
@@ -107,7 +106,7 @@ class AnalysisManager:
         self,
         keywords: Optional[list[dict[str, str]]] = None
     ):
-        print(f"🔍 Getting intent from the query: {self.query.query}")
+        print(f"🔍 Getting intent from the query: {self.query_wrapper.query}")
 
         parser = PydanticOutputParser(pydantic_object=Intent)
 
@@ -120,7 +119,7 @@ class AnalysisManager:
                 prompt=prompt,
                 parser=parser,
                 input_dict = {
-                    'query': self.query.query,
+                    'query': self.query_wrapper.query,
                     'intents': Intents.get_all_intents(),
                     'keywords': keywords
                 }
@@ -136,7 +135,7 @@ class AnalysisManager:
 
             assert True, "Not implemented yet."
             response = await self.vectorstore.do_similarity_search(
-                query = self.query.query,
+                query = self.query_wrapper.query,
                 compare_with = Intents.get_all_intents(),
                 kwargs={
                     'keywords': keywords
@@ -148,15 +147,15 @@ class AnalysisManager:
         print(f"🎯 Rank2 >>> Intent: {this_intent.rank_2_code if this_intent.rank_2_code else None}")
         print(f"🎯 Rank3 >>> Intent: {this_intent.rank_3_code if this_intent.rank_3_code else None} \n")
         
-        self.query.intents = (this_intent.rank_1_code, this_intent.rank_2_code, this_intent.rank_3_code)
+        self.query_wrapper.intents = (this_intent.rank_1_code, this_intent.rank_2_code, this_intent.rank_3_code)
 
 
     async def guess_summoners_from_query(self) -> list[Summoner] | list[None]:
-        print(f"🔍 Getting summoner name from the query: {self.query.query}")
+        print(f"🔍 Getting summoner name from the query: {self.query_wrapper.query}")
 
         summoners= []
 
-        matches = re.finditer(self.summoner_regrex, self.query.query)
+        matches = re.finditer(self.summoner_regrex, self.query_wrapper.query)
         for match in matches:
             name = match.group('name')
             tag = match.group('tag')
@@ -171,7 +170,7 @@ class AnalysisManager:
 
             web_results = self.web_agent.do_web_search(
                 web_query=f"""
-                - query: {self.query.query}
+                - query: {self.query_wrapper.query}
                 - given the query, guess the summoner name and riot tag.
                 """
             )
@@ -185,9 +184,9 @@ class AnalysisManager:
                     prompt=prompt,
                     parser=parser,
                     input_dict = {
-                        'query': self.query.query,
+                        'query': self.query_wrapper.query,
                         'maybe': maybe,
-                        'known_players': self.crawler_agent.crawl_pros(self.query.region),
+                        'known_players': self.crawler_agent.crawl_pros(self.query_wrapper.region),
                     }
                 )
 
@@ -201,3 +200,38 @@ class AnalysisManager:
                 print("⚠️ Could not parse multiple summoner names.")
 
         return summoners
+    
+
+    async def guess_champion_from_query(self):
+        print(f"🔍 Getting champion name from the query: {self.query_wrapper.query}")
+
+        parser = CommaSeparatedListOutputParser()
+        prompt = PromptTemplateService.generate_champion_prompt(
+            parser=parser
+        )
+
+        hints = self.query_wrapper.meanings
+
+        these_champions = []
+        for champion in self.query_wrapper.target_champions:
+            these_champions.append(champion.name)
+
+        try:
+            champions_candidate: list[str] = await self.llm.chat_complete(
+                prompt=prompt,
+                parser=parser,
+                input_dict = {
+                    'query': self.query_wrapper.query,
+                    'hints': hints,
+                    'all_champions': these_champions
+                }
+            )
+
+            print("🎯 Champion name analysis completed.")
+            print(f"🎯 Champion Name: {champions_candidate}")
+
+        except OutputParserException:
+            print("⚠️ Could not parse the champion name.")
+            champions_candidate = None
+
+        return champions_candidate

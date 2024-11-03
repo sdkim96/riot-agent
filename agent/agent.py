@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from .skills import TaskManager, AnalysisManager
 from .utils import QueryWrapper
 from .utils.knowledge import (GameModes, LLM, Regions)
-from .actions import LLMHandler, WebAgentHandler, RiotHandler, CrawlingHandler
+from .externals import LLMHandler, WebAgentHandler, RiotHandler, CrawlingHandler
 from .vectorstore import VectorStore
 
 
@@ -13,9 +13,9 @@ class RiotAgent:
     def __init__(
         self,
         query: str,
-        llm: LLM.OPENAI.value,
-        game_mode: GameModes.RIFT.value,
-        region: Regions.KOREA.value
+        llm: str = LLM.OPENAI.value,
+        game_mode: str = GameModes.RIFT.value,
+        region: str = Regions.KOREA.value
 
     ) -> None:
         
@@ -23,7 +23,7 @@ class RiotAgent:
         self.riot_handler = RiotHandler(region=region)
         self.crawler_agent = CrawlingHandler()
         
-        self.query = QueryWrapper(
+        self.query_wrapper = QueryWrapper(
             query, 
             game_mode, 
             region,

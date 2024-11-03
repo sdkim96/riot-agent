@@ -7,8 +7,8 @@ from langchain.output_parsers import (
 
 from .analysis_manager import AnalysisManager
 from ..prompt import PromptTemplateService
-from ..actions import (RiotHandler, LLMHandler)
-from ..utils.query import QueryWrapper
+from ..externals import (RiotHandler, LLMHandler)
+from ..utils import (QueryWrapper, Converter)
 from ..tasks import get_all_available_tasks
 
 class TaskManager:
@@ -20,7 +20,7 @@ class TaskManager:
     def __init__(self, agent):
         self.analysis_manager: AnalysisManager = agent.analysis_manager
         self.riot_handler: RiotHandler = agent.riot_handler
-        self.query: QueryWrapper = agent.query
+        self.query_wrapper: QueryWrapper = agent.query_wrapper
         self.llm: LLMHandler = agent.llm
         self.available_tasks = None
 
@@ -120,7 +120,7 @@ class TaskManager:
             prompt=prompt,
             parser=parser,
             input_dict = {
-                'query': self.query.query,
+                'query': self.query_wrapper.query,
                 # 'intents': self.query.intents, #TODO : We have to insert the essential information for the sub tasks.
                 'sub_tasks': self.available_tasks
             }
@@ -155,18 +155,31 @@ class TaskManager:
                         tagline=summoner_candidate.tag
                     )
 
-                    self.query.target_summoners.append(summoner_candidate)
+                    self.query_wrapper.target_summoners.append(summoner_candidate)
                 except:
-                    self.query.target_summoners.append(None)
+                    self.query_wrapper.target_summoners.append(None)
                     print("🚨 Summoner not found.")
 
 
 
     async def _get_champion(self):
         
-        all_champions = await self.riot_handler.get_all_champions()
-        self.query.all_champions = all_champions
+        converter = Converter()
 
+        cass_dto_champions = await self.riot_handler.get_all_champions()        
+        self.query_wrapper.all_champions = await converter.convert(cass_dto=cass_dto_champions)
+        
+        champion_candidates = await self.analysis_manager.guess_champion_from_query()
+        
+        if champion_candidates:
+            for champion in self.query_wrapper.all_champions:
+                for champion_candidate in champion_candidates:
+
+                    if champion_candidate in champion.name:
+                        self.query_wrapper.target_champions.append(champion)
+                        break
+        
+        print(f"🎯 Champion name analysis completed. Champion: {self.query_wrapper.target_champions}")
 
     async def _get_match(self):
         pass
@@ -176,4 +189,3 @@ class TaskManager:
 
     async def _get_item(self):
         pass
-        
