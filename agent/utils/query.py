@@ -32,12 +32,10 @@ class QueryWrapper:
         self.intents: Tuple[Intents.code, Intents.code] = (None, None)
 
         self.all_champions = None
-        
+
+        ########## MAIN TASKS ##########
         self.target_summoners: list[Optional[Summoner]] = []
         self.target_champions: list[Champion] = []
+
+        ########## SUB TASKS ##########
         self.searched_knowledges: dict[str, str] = {}
-
-
-    async def initalize_asyncs(self):
-        champions = await self.riot_handler.get_all_champions()
-        self.all_champions = champions

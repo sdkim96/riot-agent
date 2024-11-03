@@ -1,7 +1,7 @@
 import inspect
 from .tasks import TaskPool
 
-def get_all_available_tasks():
+async def get_all_available_tasks():
     """
     TODO: This function should return all the available functions that the agent can perform.
     Our Agent will dynamically load all the available jobs from this function.

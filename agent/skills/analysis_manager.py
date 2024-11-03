@@ -128,6 +128,11 @@ class AnalysisManager:
         except OutputParserException:
             #XXX : Not implemented yet.
             print("⚠️ Could not parse the intent, Do similarity search.")
+            this_intent = Intent(
+                rank_1_code = '2',
+                rank_2_code = '3',
+                rank_3_code = '5'
+            )
 
             assert True, "Not implemented yet."
             response = await self.vectorstore.do_similarity_search(

@@ -29,10 +29,12 @@ class RiotAgent:
             region,
             riot_handler=self.riot_handler
         )
+        
         self.llm = LLMHandler(llm)
+        self.vectorstore = VectorStore(self)
         self.analysis_manager = AnalysisManager(self)
         self.task_manager = TaskManager(self)
-        self.vectorstore = VectorStore(self)
+        
         
 
     async def run(self):
@@ -41,11 +43,15 @@ class RiotAgent:
     
 
     async def _conduct_research(self):
-        
         await self.analysis_manager.analyze_intent()
         
         main_plans = await self.task_manager.plan_main_tasks()
+        print("📝 Executing main tasks...")
         await self.task_manager.execute(main_plans)
+
+        print("📝 Planning and executing sub tasks...")
+        sub_plans = await self.task_manager.plan_sub_tasks()
+        await self.task_manager.execute(sub_plans)
 
     async def _recommend(self):
         pass

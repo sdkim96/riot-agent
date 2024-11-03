@@ -1,3 +1,6 @@
+import asyncio
+import random
+
 from ..dto.exceptions import TaskCantBeAdded
 
 ############
@@ -85,8 +88,7 @@ class TaskPool:
             print(f"🎉 Found the match data: {match_data}")
         except:
             raise TaskCantBeAdded("Match data not found.")
-        
-
+    
 
     ######################
     # Champion Statistics #
@@ -96,8 +98,8 @@ class TaskPool:
         """
         Retrieve champion statistics such as win rate, pick rate, and ban rate.
         """
-        pass
-
+        print("📊 Retrieving champion statistics (win rate, pick rate, ban rate)...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     ######################
     # Role-based Analysis #
@@ -107,8 +109,8 @@ class TaskPool:
         """
         Recommend champions based on specific team roles like top, jungle, etc.
         """
-        pass
-
+        print("🔍 Analyzing role-based recommendations (top, jungle, etc.)...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     ####################
     # Patch Note Review #
@@ -118,8 +120,8 @@ class TaskPool:
         """
         Analyze changes in the latest patch and recommend champions based on recent buffs or nerfs.
         """
-        pass
-
+        print("📄 Reviewing patch notes and analyzing recent buffs/nerfs...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     #########################
     # Summoner Growth Tracker #
@@ -129,8 +131,8 @@ class TaskPool:
         """
         Track the summoner's progress over seasons for champion mastery and rank.
         """
-        pass
-
+        print("📈 Tracking summoner growth over seasons for mastery and rank...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     #######################
     # Team Compatibility #
@@ -140,8 +142,8 @@ class TaskPool:
         """
         Analyze team composition and recommend optimal champions based on compatibility.
         """
-        pass
-
+        print("🤝 Analyzing team composition for optimal compatibility...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     ######################
     # Match Replay Suggestion #
@@ -151,8 +153,8 @@ class TaskPool:
         """
         Suggest pro match replays for skill improvement based on user role and champion.
         """
-        pass
-
+        print("🎬 Suggesting pro match replays for skill improvement...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     ######################
     # Advanced Item Trends #
@@ -162,8 +164,8 @@ class TaskPool:
         """
         Analyze item trends and suggest high-win-rate item builds.
         """
-        pass
-
+        print("📦 Analyzing item trends for high-win-rate builds...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     #######################
     # Summoner History Analysis #
@@ -173,8 +175,8 @@ class TaskPool:
         """
         Analyze summoner's past matches to highlight trends and skill progression.
         """
-        pass
-
+        print("📅 Analyzing summoner history to identify trends and progress...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     ##########################
     # Enemy Matchup Prediction #
@@ -184,8 +186,8 @@ class TaskPool:
         """
         Predict the rank and likely performance of enemy players in upcoming matches.
         """
-        pass
-
+        print("🎯 Predicting enemy matchups for upcoming matches...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     ######################
     # Champion Mastery Tips #
@@ -195,8 +197,8 @@ class TaskPool:
         """
         Provide tips on improving champion mastery, focusing on key strengths and weaknesses.
         """
-        pass
-
+        print("💡 Providing tips to improve champion mastery...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     ##############################
     # Counter Champions Recommendation #
@@ -206,8 +208,8 @@ class TaskPool:
         """
         Suggest champions that counter the opponent’s team composition.
         """
-        pass
-
+        print("🛡️ Recommending counter champions for opponent's team...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     ###########################
     # League of Legends News Feed #
@@ -217,8 +219,8 @@ class TaskPool:
         """
         Provide latest news, updates, and community highlights related to League of Legends.
         """
-        pass
-
+        print("📰 Gathering latest League of Legends news and updates...")
+        await asyncio.sleep(random.uniform(1, 3))
 
     ###############################
     # Ranked Climb Optimization Tips #
@@ -228,4 +230,5 @@ class TaskPool:
         """
         Offer tips on optimizing performance in ranked games for consistent progression.
         """
-        pass
+        print("📈 Offering ranked climb tips for better progression...")
+        await asyncio.sleep(random.uniform(1, 3))

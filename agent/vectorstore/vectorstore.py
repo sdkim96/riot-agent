@@ -3,13 +3,14 @@ from typing import Any
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_core.embeddings import Embeddings
 from langchain_core.documents import Document
+from langchain_openai.embeddings import OpenAIEmbeddings
 
 class VectorStore:
     #TODO: Implement the vector store for the agent.
     # This class will be used to store the vectors of the documents.
 
     def __init__(self, agent):
-        self.embedding: Embeddings = agent.llm.embedding
+        self.embedding: Embeddings = None
         self.vector_store = InMemoryVectorStore(self.embedding)
         self.__post__init__()
 
@@ -17,8 +18,12 @@ class VectorStore:
         self._initialize_vectorstore()
 
     def _initialize_vectorstore(self):
-        pass
-        # self.embedding.embed_query()
+        if self.embedding is None:
+            self.embedding = self.get_embedding
+
+    @property
+    def get_embedding(self):
+        return OpenAIEmbeddings()
 
     def wrap_text(
         self,
