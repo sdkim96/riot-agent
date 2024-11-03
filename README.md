@@ -18,10 +18,22 @@
 
 ### ⚙️ How it Works?
 
+![Pipeline Diagram](./docs/images/pipeline.png)
+
 1. Get query's intent.
 2. Plan main tasks depending on it's intent.
 3. In main tasks, **dynimacally plan sub tasks.**
+4. Compiling all data driven from each task, and preprocess for final agent answer.
+5. Get final answer from agent.
 
 ### 📝 Dynamical Planning
-![Pipeline Diagram](./docs/images/pipeline.png)
 
+Dynamical Planning is that agent chooses functions in tasks pool.
+There are conditions to achieve this.
+
+- Each task function **MUST RETURN VOID** and **HAVE FIXED INPUT PARAMETERS**
+Since LLM-based agent can't decide precisely input parameters and return value, we must let agent choose funtions only.
+
+- Each task function **MUST HAVE ITS DOCSTRING**
+Docstrings is best way to let LLM know what functions do.
+In our example, we try LLM first, if exception raises, similarity search for docstring.
