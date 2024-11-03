@@ -1,8 +1,12 @@
+from typing import Any
+
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_core.embeddings import Embeddings
 from langchain_core.documents import Document
 
 class VectorStore:
+    #TODO: Implement the vector store for the agent.
+    # This class will be used to store the vectors of the documents.
 
     def __init__(self, agent):
         self.embedding: Embeddings = agent.llm.embedding
@@ -30,4 +34,13 @@ class VectorStore:
     def cache_document(
             
     ):
+        pass
+
+
+    async def do_similarity_search(
+        self,
+        query: str,
+        compare_with: str,
+        **kwargs: dict
+    ) -> list[Document]:
         pass

@@ -18,7 +18,6 @@ class LLMHandler:
     def __init__(self, llm: str) -> None:
         self.llm = llm
         self.api_key = self.get_api_key
-        self.embedding = self.get_embedding
         self.llm_model = self.get_llm_model
 
 
@@ -40,14 +39,6 @@ class LLMHandler:
             return os.getenv("ANTHROPIC_API_KEY")
         else:
             raise ValueError("Invalid LLM! Now only OPENAI and ANTHROPIC are supported.")
-
-    @property
-    def get_embedding(self) -> Embeddings:
-        if self.llm == LLM.OPENAI.value:
-            return OpenAIEmbeddings()
-        
-        elif self.llm == LLM.ANTHROPIC.value:
-            raise NotImplementedError("Anthropic is not supported yet.")
 
     @property
     def get_llm_model(self) -> BaseChatModel:

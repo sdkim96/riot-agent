@@ -21,8 +21,6 @@ class RiotHandler:
         
         self.region = region
 
-
-
     ############
     # Summoner #
     ############
@@ -67,10 +65,10 @@ class RiotHandler:
         return await asyncio.to_thread(lambda: summoner.champion_masteries)
 
     
-
     ############
     # Champion #
     ############
+
 
     async def get_all_champions(self) -> cass.Champions:
         return await asyncio.to_thread(cass.get_champions, region=self.region)

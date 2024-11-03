@@ -1,18 +1,18 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 from ..utils.knowledge import Intents, GameModes, Regions
 from ..dto import Summoner, Champion
-from ..actions.riot import RiotHandler
+from ..actions import RiotHandler
+
 
 class QueryWrapper:
-
-    __all_champions=RiotHandler.get_all_champions()
 
     def __init__(
         self, 
         query: str, 
         game_mode: str, 
-        region: str
+        region: str,
+        riot_handler: RiotHandler
     ):
         """
         Args:
@@ -24,15 +24,20 @@ class QueryWrapper:
         self.query: str = query
         self.game_mode: str = game_mode
         self.region: str = region
+        self.riot_handler: RiotHandler = riot_handler
 
         self.keywords: list[str] = []
         self.meanings: dict[str, str] = {}
         
         self.intents: Tuple[Intents.code, Intents.code] = (None, None)
-        self.summoner: Summoner = None
 
-        self.target_api = None
+        self.all_champions = None
+        
+        self.target_summoners: list[Optional[Summoner]] = []
+        self.target_champions: list[Champion] = []
+        self.searched_knowledges: dict[str, str] = {}
 
-        @property
-        def champions(self):
-            return QueryWrapper.__all_champions
+
+    async def initalize_asyncs(self):
+        champions = await self.riot_handler.get_all_champions()
+        self.all_champions = champions

@@ -121,3 +121,32 @@ class PromptTemplateService:
             input_variables=['keywords'],
         )
     
+
+    @staticmethod
+    def generate_sub_tasks_prompt(parser):
+        return PromptTemplate(
+            template="""
+            Based on the user's intent analysis, you need to plan the sub tasks.
+            There is our sub task pool, you can choose the sub tasks from the pool.
+            You must output the sub tasks in a comma-separated list, 
+            each sub task should be a function name from the sub task pool.
+            List sub tasks in order.
+
+            **Instructions**:
+            - Plan the sub tasks based on the user's intent analysis.
+            - Use the provided sub task pool to select the relevant sub tasks.
+            - Ensure the sub tasks are relevant to the user's intent.
+
+            **User Query**:
+            {query}
+
+            **Sub tasks**:
+            {sub_tasks}
+
+            **Format Instructions**:
+            {format_instructions}
+            """,
+            input_variables=['queyr', 'sub_tasks'],
+            partial_variables={'format_instructions': parser.get_format_instructions()}
+        )
+    

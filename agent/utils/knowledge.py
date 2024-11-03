@@ -29,26 +29,58 @@ class Intents(enum.Enum):
     GET_SUMMONER = (
         1, 
         """
-        Retrieve detailed information about a specific summoner or specific pro player, including their current level, rank, and recent gameplay statistics.
-        Summoner names are usually in the format `SummonerName#Tag`, where `SummonerName` is the player's name and `Tag` identifies their region or account.
-        Pro players are well-known professional gamers who compete in high-level tournaments and leagues.
+        Retrieve detailed information about a specific summoner or pro player.
+        This includes their current level, rank, and recent gameplay statistics.
+        Summoner names are typically formatted as `SummonerName#Tag`, where `SummonerName`
+        is the player's display name and `Tag` identifies their region or account.
+        Pro players are well-known for competing in professional tournaments and leagues.
         """
     )
+
     GET_CHAMPION = (
         2, 
-        "Retrieve specific details about a champion, including their abilities, stats, and background information, suited for in-depth champion analysis."
+        """
+        Retrieve specific details about a champion.
+        This includes their abilities, stats, and background information, which is useful for 
+        in-depth champion analysis, especially when comparing with other champions or planning strategies.
+        """
     )
+
     GET_MATCH = (
         3, 
-        "Retrieve comprehensive data about a specific match, including participant details, match timeline, and outcome, for a full match summary."
+        """
+        Retrieve comprehensive data about a specific match.
+        This includes participant details, match timeline, and outcome, providing a full match summary.
+        Useful for reviewing or analyzing previous games, understanding play patterns, or tracking performance.
+        """
     )
+
     GET_RANKING = (
         4, 
-        "Access the current ranked standings, statistics, and achievements for the user or other players in competitive play."
+        """
+        Access the current ranked standings and achievements.
+        This includes ranked statistics for the user or other players in competitive play, 
+        allowing for tracking progress and understanding ranking dynamics.
+        """
     )
+
     GET_ITEM = (
         5, 
-        "Fetch detailed information about an in-game item, covering stats, cost, and effects, for item-specific analysis or comparison."
+        """
+        Fetch detailed information about an in-game item.
+        Covers stats, cost, and effects, which is useful for item-specific analysis or comparison,
+        especially when planning builds or understanding item effectiveness.
+        """
+    )
+
+    ETC = (
+        6, 
+        """
+        Retrieve other miscellaneous information or data.
+        This includes general inquiries or tasks that don't fit into the predefined categories, 
+        such as tips, game-related news feeds, or other auxiliary content requests.
+        Useful for tasks that may not strictly require predefined intents.
+        """
     )
 
     def __init__(self, code, description):

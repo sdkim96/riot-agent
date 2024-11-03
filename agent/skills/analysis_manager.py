@@ -13,13 +13,14 @@ from ..utils.knowledge import Intents
 from ..actions import LLMHandler, CrawlingHandler, WebAgentHandler
 from ..dto.commons import Intent
 from ..dto.summoner import Summoner
-
+from ..vectorstore import VectorStore
 from ..prompt import PromptTemplateService
 
 class AnalysisManager:
     def __init__(self, agent):
         self.query: QueryWrapper = agent.query
         self.llm: LLMHandler = agent.llm
+        self.vectorstore: VectorStore = agent.vectorstore
         self.web_agent: WebAgentHandler = agent.web_agent
         self.crawler_agent: CrawlingHandler = agent.crawler_agent
         self.summoner_regrex = r'(?P<name>.+)#(?P<tag>.+)'
@@ -114,15 +115,28 @@ class AnalysisManager:
             parser=parser
         )
 
-        this_intent: Intent = await self.llm.chat_complete(
-            prompt=prompt,
-            parser=parser,
-            input_dict = {
-                'query': self.query.query,
-                'intents': Intents.get_all_intents(),
-                'keywords': keywords
-            }
-        )
+        try:
+            this_intent: Intent = await self.llm.chat_complete(
+                prompt=prompt,
+                parser=parser,
+                input_dict = {
+                    'query': self.query.query,
+                    'intents': Intents.get_all_intents(),
+                    'keywords': keywords
+                }
+            )
+        except OutputParserException:
+            #XXX : Not implemented yet.
+            print("⚠️ Could not parse the intent, Do similarity search.")
+
+            assert True, "Not implemented yet."
+            response = await self.vectorstore.do_similarity_search(
+                query = self.query.query,
+                compare_with = Intents.get_all_intents(),
+                kwargs={
+                    'keywords': keywords
+                }
+            )
         
         print("🎯 Intent analysis completed.")
         print(f"🎯 Rank1 >>> Intent: {this_intent.rank_1_code}")
@@ -132,26 +146,26 @@ class AnalysisManager:
         self.query.intents = (this_intent.rank_1_code, this_intent.rank_2_code, this_intent.rank_3_code)
 
 
-    async def guess_summoner_name_from_query(self) -> Summoner:
+    async def guess_summoners_from_query(self) -> list[Summoner] | list[None]:
         print(f"🔍 Getting summoner name from the query: {self.query.query}")
 
-        match = re.match(self.summoner_regrex, self.query.query)
-        if match:
+        summoners= []
+
+        matches = re.finditer(self.summoner_regrex, self.query.query)
+        for match in matches:
             name = match.group('name')
             tag = match.group('tag')
-            
-            return Summoner(name=name, tag=tag)
+            summoners.append(Summoner(name=name, tag=tag))
 
-        parser = PydanticOutputParser(pydantic_object=Summoner)
-        prompt = PromptTemplateService.generate_summoner_prompt(
-            parser=parser
-        )
-        # if user query contains a '#' character, we can assume the user is providing the tag and name
-        if '#' in self.query.query:
-            maybe = ''
-        else:
+        if not summoners:
+            #TODO: We must think about how to handle multiple summoner names.
+            parser = PydanticOutputParser(pydantic_object=Summoner)
+            prompt = PromptTemplateService.generate_summoner_prompt(
+                parser=parser
+            )
+
             web_results = self.web_agent.do_web_search(
-               web_query=f"""
+                web_query=f"""
                 - query: {self.query.query}
                 - given the query, guess the summoner name and riot tag.
                 """
@@ -161,22 +175,24 @@ class AnalysisManager:
             for r in web_results.get('results', []):
                 maybe += r.get('content', '')
 
-        try:
-            this_summoner: Summoner = await self.llm.chat_complete(
-                prompt=prompt,
-                parser=parser,
-                input_dict = {
-                    'query': self.query.query,
-                    'maybe': maybe,
-                    'known_players': self.crawler_agent.crawl_pros(self.query.region),
-                }
-            )
-        except OutputParserException:
-            this_summoner = Summoner(name=None, tag=None)
+            try:
+                summoner_list: list[Summoner] = await self.llm.chat_complete(
+                    prompt=prompt,
+                    parser=parser,
+                    input_dict = {
+                        'query': self.query.query,
+                        'maybe': maybe,
+                        'known_players': self.crawler_agent.crawl_pros(self.query.region),
+                    }
+                )
 
-        print("🎯 Summoner name analysis completed.")
-        print(f"🎯 Name: {this_summoner.name}, Tag: {this_summoner.tag}")
+                summoners.extend(summoner_list)
 
-        self.query.summoner = this_summoner
+                print("🎯 Summoner name analysis completed.")
+                for s in summoners:
+                    print(f"🎯 Summoner Name: {s.name}#{s.tag}")
 
-        return this_summoner
+            except OutputParserException:
+                print("⚠️ Could not parse multiple summoner names.")
+
+        return summoners

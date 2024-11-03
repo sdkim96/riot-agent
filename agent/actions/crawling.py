@@ -56,6 +56,7 @@ class CrawlingHandler:
         return processed_data
 
 
+    # TODO: I'm not sure if i can crawl the data from the target URL
     def crawl_champions_data(self, region: str = None, game_mode: str = None) -> dict:
         """Crawl champions data from the target URL."""
         target_url = "https://www.fow.lol/stats"

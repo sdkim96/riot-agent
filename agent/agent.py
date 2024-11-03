@@ -17,13 +17,18 @@ class RiotAgent:
         game_mode: GameModes.RIFT.value,
         region: Regions.KOREA.value
 
-        ) -> None:
+    ) -> None:
         
         self.web_agent = WebAgentHandler()
         self.riot_handler = RiotHandler(region=region)
         self.crawler_agent = CrawlingHandler()
         
-        self.query = QueryWrapper(query, game_mode, region)
+        self.query = QueryWrapper(
+            query, 
+            game_mode, 
+            region,
+            riot_handler=self.riot_handler
+        )
         self.llm = LLMHandler(llm)
         self.analysis_manager = AnalysisManager(self)
         self.task_manager = TaskManager(self)
@@ -36,7 +41,9 @@ class RiotAgent:
     
 
     async def _conduct_research(self):
+        
         await self.analysis_manager.analyze_intent()
+        
         main_plans = await self.task_manager.plan_main_tasks()
         await self.task_manager.execute(main_plans)
 

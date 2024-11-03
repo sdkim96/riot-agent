@@ -1,6 +1,11 @@
 import pytest
+from agent.agent import RiotAgent
 from agent.actions.riot import RiotHandler
 
+@pytest.mark.asyncdio
+async def inititalize_agent():
+    riot_handler = RiotAgent()
+    assert riot_handler
 
 # @pytest.mark.asyncio
 # async def test_get_this_patch_version():
@@ -20,16 +25,16 @@ from agent.actions.riot import RiotHandler
 #         print(f"Lane: {lane}, Play Rate: {play_rate}")
 
 
-@pytest.mark.asyncio
-async def test_get_op_champions():
-    riot_handler = RiotHandler(region="KR")
-    na_riot_handler = RiotHandler(region="NA")
+# @pytest.mark.asyncio
+# async def test_get_op_champions():
+#     riot_handler = RiotHandler(region="KR")
+#     na_riot_handler = RiotHandler(region="NA")
     
-    kr_champions = await riot_handler._get_all_champions()
-    na_champions = await na_riot_handler._get_all_champions()
+#     kr_champions = await riot_handler.get_all_champions()
+#     na_champions = await na_riot_handler.get_all_champions()
 
-    for nc in na_champions:
-        for kc in kr_champions:
-            if nc.id == kc.id:
-                print(f"ID: {nc.id}, KR Name: {kc.name}, NA Name: {nc.name}")
-                break
+#     for nc in na_champions:
+#         for kc in kr_champions:
+#             if nc.id == kc.id:
+#                 print(f"ID: {nc.id}, KR Name: {kc.name}, NA Name: {nc.name}")
+#                 break

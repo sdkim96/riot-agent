@@ -1,8 +1,14 @@
 import asyncio
 
+from langchain.output_parsers import (
+    CommaSeparatedListOutputParser,
+)
+
 from .analysis_manager import AnalysisManager
-from ..actions.riot import RiotHandler
+from ..prompt import PromptTemplateService
+from ..actions import (RiotHandler, LLMHandler)
 from ..utils.query import QueryWrapper
+from ..tasks import get_all_available_tasks
 
 class TaskManager:
     
@@ -10,6 +16,8 @@ class TaskManager:
         self.analysis_manager: AnalysisManager = agent.analysis_manager
         self.riot_handler: RiotHandler = agent.riot_handler
         self.query: QueryWrapper = agent.query
+        self.llm: LLMHandler = agent.llm
+        self.available_tasks = get_all_available_tasks()
 
 
     async def plan_main_tasks(self):
@@ -80,36 +88,58 @@ class TaskManager:
         return await asyncio.gather(*tasks)
     
 
-    async def plan_sub_tasks(self, main_task_id):
+    async def plan_sub_tasks(self):
         """
         Plan sub tasks by using dynamic task planning
         Read the docs from agent.actions.__init__.py for more information.
         """
+        print(f"📝 Planning the sub tasks based on the intent analysis.")
+
+        parser = CommaSeparatedListOutputParser()
+        prompt = PromptTemplateService.generate_sub_tasks_prompt(
+            parser=parser
+        )
+
+        sub_tasks: list[str] = await self.llm.chat_complete(
+            prompt=prompt,
+            parser=parser,
+            input_dict = {
+                'query': self.query.query,
+                'sub_tasks': self.available_tasks
+            }
+        )
+
+        return sub_tasks
 
 
     async def _process_summoner(self):
-        summoner_candidate = await self.analysis_manager.guess_summoner_name_from_query()
-        
-        try:
-            summoner = await self.riot_handler.get_summoner(
-                name=summoner_candidate.name,
-                tagline=summoner_candidate.tag
-            )
-            match_history = await self.riot_handler.get_summnoner_match_history(summoner)
-            champion_masteries = await self.riot_handler.get_summoner_most_played_champion(summoner)
-        except:
-            print("🚨 Summoner not found.")
+        summoners_candidate = await self.analysis_manager.guess_summoners_from_query()
+        if len(summoners_candidate) > 0:
+
+            for summoner_candidate in summoners_candidate:
+                try:
+                    await self.riot_handler.get_summoner(
+                        name=summoner_candidate.name,
+                        tagline=summoner_candidate.tag
+                    )
+
+                    self.query.target_summoners.append(summoner_candidate)
+                except:
+                    self.query.target_summoners.append(None)
+                    print("🚨 Summoner not found.")
+
+        await self.plan_sub_tasks()
 
 
     async def _get_champion(self):
-        await self.plan_sub_tasks(2)
+        await self.plan_sub_tasks()
 
     async def _get_match(self):
-        await self.plan_sub_tasks(3)
+        await self.plan_sub_tasks()
 
     async def _get_ranking(self):
-        await self.plan_sub_tasks(4)
+        await self.plan_sub_tasks()
 
     async def _get_item(self):
-        await self.plan_sub_tasks(5)
+        await self.plan_sub_tasks()
         
