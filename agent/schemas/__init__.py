@@ -16,11 +16,16 @@ from .commons import (
     Intent,
 )
 
+from .maps import (
+    Map
+)
+
 __all__ = [
     "Summoner",
     "Item",
     "Champion",
     "Skills",
     "Skill",
-    "Intent"
+    "Intent",
+    "Map"
 ]

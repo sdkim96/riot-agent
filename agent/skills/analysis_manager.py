@@ -134,7 +134,6 @@ class AnalysisManager:
                     'domain': 'intents'
                 }
             )
-
             
             this_intent = Intent()
 
@@ -146,7 +145,6 @@ class AnalysisManager:
                 this_intent.rank_3_code = knowledge_ids[2]
 
 
-        
         print("🎯 Intent analysis completed.")
         print(f"🎯 Rank1 >>> Intent: {this_intent.rank_1_code}")
         print(f"🎯 Rank2 >>> Intent: {this_intent.rank_2_code if this_intent.rank_2_code else None}")

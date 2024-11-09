@@ -2,6 +2,19 @@ import pytest
 from agent.agent import RiotAgent
 from agent.externals.riot import RiotHandler
 
+
+# @pytest.mark.asyncio
+# async def test_all_items():
+#     riot_handler = RiotHandler(region="KR")
+#     items = await riot_handler.get_all_items()
+#     assert items
+
+# @pytest.mark.asyncio
+# async def test_all_maps():
+#     riot_handler = RiotHandler(region="KR")
+#     maps = await riot_handler.get_all_maps()
+#     assert maps
+
 # @pytest.mark.asyncdio
 # async def inititalize_agent():
 #     riot_handler = RiotAgent()

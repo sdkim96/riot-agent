@@ -1,10 +1,10 @@
 import os
-from tavily import TavilyClient
+from tavily import AsyncTavilyClient
 
 class WebAgentHandler:
     
     def __init__(self):
-        self.tavily_client = TavilyClient(os.getenv("TAVILY_API_KEY"))
+        self.tavily_client = AsyncTavilyClient(os.getenv("TAVILY_API_KEY"))
 
     def _concat_results_to_string(self, results: list):
         result_str = ""
@@ -14,10 +14,10 @@ class WebAgentHandler:
         return result_str
 
 
-    def do_web_search(self, web_query: str):
-        return self.tavily_client.search(web_query)
+    async def do_web_search(self, web_query: str):
+        return await self.tavily_client.search(web_query)
     
-    def search_background_knowledge_of_query(
+    async def search_background_knowledge_of_query(
             self, 
             web_query: str,
             limit: int = 2
@@ -29,7 +29,7 @@ class WebAgentHandler:
 
         - keyword: {web_query}
         """
-        web_result = self.tavily_client.search(
+        web_result = await self.tavily_client.search(
             query=query,
             max_results=limit
         )

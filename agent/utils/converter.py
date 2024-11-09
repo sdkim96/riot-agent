@@ -5,7 +5,8 @@ from ..schemas import (
     Champion,
     Item,
     Skills,
-    Skill
+    Skill,
+    Map
 )
 
 class Converter:
@@ -25,8 +26,21 @@ class Converter:
                 return await self.convert_items(cass_dto)
             case cass.Summoner:
                 return await self.convert_summoner(cass_dto)
+            case cass.Map:
+                return await self.convert_map(cass_dto)
+            case cass.Maps:
+                return await self.convert_maps(cass_dto)
             case _:
                 return 'string'
+            
+    async def convert_maps(self, maps: cass.Maps):
+        return [await self.convert_map(m) for m in maps]
+            
+    async def convert_map(self, map: cass.Map):
+        return Map(
+            id=map.id,
+            name=map.name,
+        )
 
     async def convert_champion(self, champion):
         return Champion(

@@ -145,6 +145,28 @@ class RiotHandler:
         return await asyncio.to_thread(cass.get_grandmaster_league, queue=queue, region=self.region)
 
 
+    ##########
+    # Item   #
+    ##########
+
+    async def get_all_items(
+        self,
+    ) -> cass.Items:
+        return await asyncio.to_thread(cass.get_items, region=self.region)
+
+    ##########
+    # Maps   #
+    ##########
+
+
+    async def get_all_maps(
+        self,
+        region: Optional[str] = None
+    ) -> cass.Maps:
+        if region is None:
+            region = self.region
+        return await asyncio.to_thread(cass.get_maps, region=region)
+
 
     ########
     # Util #
@@ -170,13 +192,18 @@ class RiotHandler:
 if __name__ == "__main__":
     async def main():
         
-        this_patch_version = await RiotHandler()._get_this_patch_version()
-        print(this_patch_version)
-        
-        champion= "Jinx"
-        jinx = await RiotHandler(region='KR').get_champion_by_name(champion)
+        riot = RiotHandler(region="KR")
+        items = await riot.get_all_items()
 
-        print(jinx)
+        print(items)
+
+        # this_patch_version = await RiotHandler()._get_this_patch_version()
+        # print(this_patch_version)
+        
+        # champion= "Jinx"
+        # jinx = await RiotHandler(region='KR').get_champion_by_name(champion)
+
+        # print(jinx)
 
 
         # riot = RiotHandler(region="KR")

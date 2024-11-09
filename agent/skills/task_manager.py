@@ -82,23 +82,23 @@ class TaskManager:
 
         if '1' in self.query_wrapper.intents:
             print("📝 Intent 1 (Get Summoner)")
-            tasks.append(self._process_summoner())
+            tasks.append(self.process_summoner())
 
         if '2' in self.query_wrapper.intents:
             print("📝 Intent 2 (Get Champion)")
-            tasks.append(self._get_champion())
+            tasks.append(self.process_champion())
 
         if '3' in self.query_wrapper.intents:
             print("📝 Intent 3 (Get Match)")
-            tasks.append(self._get_match())
+            tasks.append(self.process_match())
 
         if '4' in self.query_wrapper.intents:
             print("📝 Intent 4 (Get Ranking)")
-            tasks.append(self._get_ranking())
+            tasks.append(self.process_ranking())
 
         if '5' in self.query_wrapper.intents:
             print("📝 Intent 5 (Get Item)")
-            tasks.append(self._get_item())
+            tasks.append(self.process_item())
 
         return tasks
     
@@ -147,7 +147,7 @@ class TaskManager:
     # targets for each main task are getting essential information for query.
     # For example, If query contains summoner's name, then the main task is to get the summoner's name.
 
-    async def _process_summoner(self):
+    async def process_summoner(self):
         summoners_candidate = await self.analysis_manager.guess_summoners_from_query()
         if len(summoners_candidate) > 0:
 
@@ -166,7 +166,7 @@ class TaskManager:
             print("🚨 Summoner not found.")
 
 
-    async def _get_champion(self):
+    async def process_champion(self):
         
         converter = Converter()
         assert self.query_wrapper.all_champions is None, "All champions must be None before this method."
@@ -194,11 +194,53 @@ class TaskManager:
         
         print(f"🎯 Champion name analysis completed. Champion: {self.query_wrapper.target_champions}")
 
-    async def _get_match(self):
+    async def process_match(self):
         pass
 
-    async def _get_ranking(self):
+    async def process_ranking(self):
         pass
 
-    async def _get_item(self):
-        pass
+    async def process_item(self):
+
+        await self._load_all_maps()
+        items = await self.riot_handler.get_all_items()
+        
+
+    async def _load_items(self) -> None:
+        if self.query_wrapper.all_items is None:
+            items = await self.riot_handler.get_all_items()
+            
+
+            #FIXME: Load items by game modes.
+            # [
+            #     Map(id=11, name='소환사의 협곡', english_name="Summoner's Rift"), 
+            #     Map(id=12, name='칼바람 나락', english_name='Howling Abyss'), 
+            #     Map(id=21, name='돌격! 넥서스', english_name='Nexus Blitz'), 
+            #     Map(id=22, name='전략적 팀 전투', english_name='Teamfight Tactics'), 
+            #     Map(id=30, name='아레나', english_name='Arena'), 
+            #     Map(id=33, name='', english_name='')
+            # ]
+            if self.query_wrapper.game_mode == 'ARAM':
+                
+                self.query_wrapper.all_items = items
+
+
+    async def _load_all_maps(self) -> None:
+        if self.query_wrapper.all_maps is None:
+            converter = Converter()
+            cass_dto_maps = await self.riot_handler.get_all_maps()
+            maps = await converter.convert_maps(cass_dto_maps)
+
+            if self.query_wrapper.region == 'NA':
+                self.query_wrapper.all_maps = maps
+                for each_map in maps:
+                    each_map.english_name = each_map.name
+            else:
+                cass_dto_eng_maps = await self.riot_handler.get_all_maps(region='NA')
+
+                self.query_wrapper.all_maps = maps
+                for each_map in maps:
+                    for each_eng_map in cass_dto_eng_maps:
+                        if each_map.id == int(each_eng_map.id):
+                            each_map.english_name = each_eng_map.name
+                            break

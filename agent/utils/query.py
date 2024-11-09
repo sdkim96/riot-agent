@@ -1,7 +1,7 @@
 from typing import Tuple, Optional
 
 from ..utils.knowledge import Intents, GameModes, Regions
-from ..schemas import Summoner, Champion
+from ..schemas import Summoner, Champion, Map
 from ..externals import RiotHandler
 
 
@@ -35,6 +35,8 @@ class QueryWrapper:
 
         ########## MAIN TASKS ##########
         self.all_champions = None
+        self.all_maps = None
+        self.all_items = None
         self.target_lane: Optional[str] = None
         self.target_summoners: list[Optional[Summoner]] = []
         self.target_champions: list[Champion] = []
